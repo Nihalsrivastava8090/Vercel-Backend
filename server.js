@@ -2,8 +2,6 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-
-// Routes
 import authRoutes from "./routes/authRoutes.js";
 import emotionRoutes from "./routes/emotionRoutes.js";
 import journalRoutes from "./routes/journalRoutes.js";
@@ -11,7 +9,15 @@ import journalRoutes from "./routes/journalRoutes.js";
 dotenv.config();
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://vercel-frontend-xi-ecru.vercel.app",  // Your frontend URL
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
 app.use(express.json());
 
 // Test route
