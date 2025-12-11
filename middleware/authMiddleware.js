@@ -4,19 +4,32 @@ import jwt from "jsonwebtoken";
 const authMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  // No token found
+  if (!authHeader) {
     return res.status(401).json({ message: "No token provided" });
   }
 
-  const token = authHeader.split(" ")[1];
+  // Support both: "Bearer token" and "token"
+  const token = authHeader.startsWith("Bearer ")
+    ? authHeader.split(" ")[1]
+    : authHeader;
+
+  if (!token) {
+    return res.status(401).json({ message: "Token missing" });
+  }
 
   try {
+    // Decode token using your login signature:
+    // jwt.sign({ id: user._id }, JWT_SECRET)
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    // your login controller does: jwt.sign({ id: user._id }, ...)
+
+    // Attach user id to request
     req.user = { id: decoded.id };
+
     next();
   } catch (err) {
-    return res.status(401).json({ message: "Invalid token" });
+    console.error("JWT Error:", err.message);
+    return res.status(401).json({ message: "Invalid or expired token" });
   }
 };
 
